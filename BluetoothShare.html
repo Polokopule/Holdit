@@ -1,0 +1,174 @@
+
+   <!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   	 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js"></script>
+
+    <!-- Firebase Storage -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-storage.js"></script>
+ <title>Unite</title> <style> body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0; 
+overflow: hidden;
+ }
+    #file-container {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 10px;
+        width:300px;
+        height:100vh;
+        overflow-y:scroll;
+        overflow-x: hidden;
+        
+    }
+
+    .file-card {
+        background-color: #ffffff;
+        border-radius: 5px;
+        padding: 16px;
+        margin: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 250px;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .file-card img {
+        max-width: 60%;
+        height: auto;
+    }
+
+    .custom-music-player {
+        display: flex;
+        align-items: center;
+        padding: 8px;
+        background-color: #ffffff;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin: 8px;
+    }
+
+    .custom-music-player button {
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .custom-music-player input[type=range] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 16px;
+        background: #d3d3d3;
+        outline: none;
+        overflow: hidden;
+        border-radius: 50px;
+        cursor: pointer;
+    }
+
+    .custom-music-player input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #4caf50;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    @media screen and (max-width: 768px) {
+        .file-card {
+            width: calc(50% - 16px);
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        .file-card {
+            width: calc(100% - 16px);
+        }
+    }
+</style>
+</head> <body>
+
+	 <input type="file" id="file-input"> <button id="upload-button">Upload</button>
+	 	<center><h1>By Poloko Pule</h1></center>
+	  <div id="file-container"></div>
+
+<script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCYlzqp4ohFgH-Nw1NdIIkKr4U3HX7xwls",
+        authDomain: "unite-3409c.firebaseapp.com",
+        projectId: "unite-3409c",
+        storageBucket: "unite-3409c.appspot.com",
+        messagingSenderId: "608397760209",
+        appId: "1:608397760209:web:96c7edde0c8d59e49b17f0"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Create a storage reference from our storage service
+    const storage = firebase.storage();
+
+    // Listen for file changes
+    document.getElementById('file-input').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const storageRef = storage.ref(file.name);
+        const uploadTask = storageRef.put(file);
+
+        uploadTask.on('state_changed', (snapshot) => {
+            console.log('Uploading', (snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+        }, (error) => {
+            console.log('Error', error);
+        }, () => {
+            console.log('Upload successful');
+            getFiles();
+        });
+    });
+
+    // Listen for upload button clicks
+    document.getElementById('upload-button').addEventListener('click', () => {
+        document.getElementById('file-input').click();
+    });
+
+    // Get files from Firebase Storage
+    const getFiles = () => {
+        storage.ref().listAll().then((result) => {
+            result.items.forEach((item) => {
+                item.getDownloadURL().then((url) => {
+                    addFileToDOM(url, item.name);
+                });
+            });
+        });
+    };
+
+    // Add a file to the DOM
+    const addFileToDOM = (url, name) => {
+        const fileCard = document.createElement('div');
+        fileCard.className = 'file-card';
+
+        const img = document.createElement('img');
+        img.src = url;
+
+        const fileTitle = document.createElement('h3');
+        fileTitle.textContent = name;
+        
+const a = document.createElement('a');
+       a.textContent = 'Download';
+       a.href = url;
+      a.download =name;
+       fileCard.appendChild(img);
+  fileCard.appendChild(a);     
+        fileCard.appendChild(fileTitle);
+
+        document.getElementById('file-container').appendChild(fileCard);
+    };
+
+    getFiles();
+</script>
